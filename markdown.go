@@ -311,7 +311,7 @@ func (md *MarkdownFormatter) GenerateExampleBlock(endp *Endpoint) string {
 		fmt.Fprintf(buf, "-F file=@myfile ")
 	}
 
-	fmt.Fprintf(buf, "\"http://127.0.0.1:5001%s", endp.Name)
+	fmt.Fprintf(buf, "\"https://ipfs.infura.io:5001%s", endp.Name)
 	if len(queryargs) > 0 {
 		fmt.Fprintf(buf, "?%s\"", strings.Join(queryargs, "&"))
 	} else {
