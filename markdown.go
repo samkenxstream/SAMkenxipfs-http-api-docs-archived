@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"html"
-	"regexp"
 	"strings"
 	"time"
 )
@@ -173,37 +172,6 @@ func (md *MarkdownFormatter) GenerateArgumentsBlock(args []*Argument, opts []*Ar
 	}
 
 	fmt.Fprintf(buf, "\n")
-	return buf.String()
-}
-
-// Removes the "Default:..." part in the descriptions.
-var fixDesc, _ = regexp.Compile(" Default: [a-zA-z0-9-_]+ ?\\.")
-
-func genArgument(arg *Argument, aliasToArg bool) string {
-	// These get handled by GenerateBodyBlock
-	if arg.Type == "file" {
-		return "\n"
-	}
-
-	buf := new(bytes.Buffer)
-	alias := arg.Name
-	if aliasToArg {
-		alias = "arg"
-	}
-
-	fixedDescription := string(fixDesc.ReplaceAll([]byte(arg.Description), []byte("")))
-	fixedDescription = html.EscapeString(fixedDescription)
-
-	fmt.Fprintf(buf, "- `%s` [%s]: %s", alias, arg.Type, fixedDescription)
-	if len(arg.Default) > 0 {
-		fmt.Fprintf(buf, " Default: `%s`.", arg.Default)
-	}
-	if arg.Required {
-		fmt.Fprintf(buf, ` Required: **yes**.`)
-	} else {
-		fmt.Fprintf(buf, ` Required: no.`)
-	}
-	fmt.Fprintln(buf)
 	return buf.String()
 }
 

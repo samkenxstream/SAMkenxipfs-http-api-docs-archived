@@ -3,11 +3,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/ipfs/http-api-docs"
+
+	docs "github.com/ipfs/http-api-docs"
 )
 
 func main() {
 	endpoints := docs.AllEndpoints()
-	formatter := new(docs.MarkdownFormatter)
+	formatter := new(docs.OpenAPIFormatter)
 	fmt.Println(docs.GenerateDocs(endpoints, formatter))
 }
