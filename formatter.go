@@ -22,7 +22,7 @@ func GenerateDocs(api []*Endpoint, formatter Formatter) string {
 	for _, endp := range api {
 		buf.WriteString(formatter.GenerateEndpointBlock(endp))
 		buf.WriteString(formatter.GenerateArgumentsBlock(endp.Arguments, endp.Options))
-		// buf.WriteString(formatter.GenerateBodyBlock(endp.Arguments))
+		buf.WriteString(formatter.GenerateBodyBlock(endp.Arguments))
 		buf.WriteString(formatter.GenerateResponseBlock(endp.Response))
 		// buf.WriteString(formatter.GenerateExampleBlock(endp))
 	}

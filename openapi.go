@@ -191,43 +191,45 @@ func (oas *OpenAPIFormatter) GenerateBodyBlock(args []*Argument) string {
 
 	if bodyArg != nil {
 		buf := new(bytes.Buffer)
-		fmt.Fprintf(buf, `
-### Request Body
-
-Argument `+"`%s`"+` is of file type. This endpoint expects one or several files (depending on the command) in the body of the request as 'multipart/form-data'.
-
-`, bodyArg.Name)
+		description := fmt.Sprintf("Argument `%s` is of file type. This endpoint expects one or several files (depending on the command) in the body of the request as 'multipart/form-data'", bodyArg.Name)
 
 		// Special documentation for /add
 		if bodyArg.Endpoint == "/api/v0/add" {
-			fmt.Fprintln(buf, `
+			description = description + `
+      
+            The ` + "`add`" + ` command not only allows adding files, but also uploading directories and complex hierarchies.
 
-The `+"`add`"+` command not only allows adding files, but also uploading directories and complex hierarchies.
+            This happens as follows: Every part in the multipart request is a *directory* or a *file* to be added to IPFS.
 
-This happens as follows: Every part in the multipart request is a *directory* or a *file* to be added to IPFS.
+            Directory parts have a special content type ` + "`application/x-directory`" + `. These parts do not carry any data. The part headers look as follows:
 
-Directory parts have a special content type `+"`application/x-directory`"+`. These parts do not carry any data. The part headers look as follows:
+            ` + "```" + `
+            Content-Disposition: form-data; name="file"; filename="folderName"
+            Content-Type: application/x-directory
+            ` + "```" + `
 
-`+"```"+`
-Content-Disposition: form-data; name="file"; filename="folderName"
-Content-Type: application/x-directory
-`+"```"+`
+            File parts carry the file payload after the following headers:
 
-File parts carry the file payload after the following headers:
+            ` + "```" + `
+            Abspath: /absolute/path/to/file.txt
+            Content-Disposition: form-data; name="file"; filename="folderName%2Ffile.txt"
+            Content-Type: application/octet-stream
 
-`+"```"+`
-Abspath: /absolute/path/to/file.txt
-Content-Disposition: form-data; name="file"; filename="folderName%2Ffile.txt"
-Content-Type: application/octet-stream
+            ...contents...
+            ` + "```" + `
 
-...contents...
-`+"```"+`
+            The above file includes its path in the "folderName/file.txt" hierarchy and IPFS will therefore be able to add it inside "folderName". The parts declaring the directories are optional when they have files inside and will be inferred from the filenames. In any case, a depth-first traversal of the directory tree is recommended to order the different parts making the request.
 
-The above file includes its path in the "folderName/file.txt" hierarchy and IPFS will therefore be able to add it inside "folderName". The parts declaring the directories are optional when they have files inside and will be inferred from the filenames. In any case, a depth-first traversal of the directory tree is recommended to order the different parts making the request.
-
-The `+"`Abspath`"+` header is included for filestore/urlstore features that are enabled with the `+"`nocopy`"+` option and it can be set to the location of the file in the filesystem (within the IPFS root), or to its full web URL.
-`)
+            The ` + "`Abspath`" + ` header is included for filestore/urlstore features that are enabled with the ` + "`nocopy`" + ` option and it can be set to the location of the file in the filesystem (within the IPFS root), or to its full web URL.
+    `
 		}
+
+		fmt.Fprintf(buf, `
+        requestBody:
+          description: |
+            %s
+          content: {}
+    `, description)
 		return buf.String()
 	}
 	return ""
